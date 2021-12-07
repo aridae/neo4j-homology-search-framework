@@ -1,6 +1,6 @@
 [Unit]
 Description=Miserable Genome Neo4j Client
-ConditionPathExists=/root/Code/neo4j-homology-search-framework/main
+ConditionPathExists=/usr/bin/mewo4j/mewo4j
 After=network.target
  
 [Service]
@@ -11,10 +11,10 @@ LimitNOFILE=1024
 
 Restart=on-failure
 RestartSec=10
-startLimitIntervalSec=60
+RestartLimitIntervalSec=60
 
-WorkingDirectory=/root/Code/neo4j-homology-search-framework/
-ExecStart=/root/Code/neo4j-homology-search-framework/main
+WorkingDirectory=/usr/bin/mewo4j
+ExecStart=/usr/bin/mewo4j/mewo4j
 
 # make sure log directory exists and owned by syslog
 PermissionsStartOnly=true

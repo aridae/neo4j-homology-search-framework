@@ -24,6 +24,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"syscall"
 
 	db "github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/dbdriver"
 	ctrl "github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/de-bruijn-graph/controller"
@@ -49,9 +50,7 @@ func main() {
 
 	// setup signal catching
 	sigs := make(chan os.Signal, 1)
-
-	// catch all signals since not explicitly listing
-	signal.Notify(sigs)
+	signal.Notify(sigs, syscall.SIGTERM)
 
 	neo4jClient, err := db.GetNeo4jClient(db.GetNeo4jOptions())
 	if err != nil {
@@ -63,7 +62,7 @@ func main() {
 	// method invoked upon seeing signal
 	go func(client *db.Neo4jClient) {
 		s := <-sigs
-		log.Printf("RECEIVED SIGNAL: %s", s)
+		log.Printf("RECEIVED SIGNAL [SIGTERM]: %s", s)
 		log.Println("Closing neo4j client...")
 		client.CloseNeo4jClient()
 		os.Exit(1)
