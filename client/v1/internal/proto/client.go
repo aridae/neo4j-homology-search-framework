@@ -23,8 +23,15 @@ func (client *Client) SendInitDBCommand(k int64) error {
 	return client.sendCommand(initdbCommand)
 }
 
-func (client *Client) SendAddGenomeCommand(path string) error {
-	addGenomeCommand := cmd.NewAddGenomeCommand(path)
+func (client *Client) SendAddGenomeCommand(path string, k int64) error {
+	// дергаем скрипт с кмс, читаем получившийся жсон
+	// удаляем этот жсон(?) оставляем в качестве кэша(?)
+	// потом удалим...
+	println("pomogite")
+	addGenomeCommand, err := cmd.NewAddGenomeCommand(path, k)
+	if err != nil {
+		return err
+	}
 	return client.sendCommand(addGenomeCommand)
 }
 

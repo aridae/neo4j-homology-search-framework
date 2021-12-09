@@ -3,15 +3,12 @@ package controller
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
-	"os"
 	"sync"
 
 	cmd "github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/commands"
 	dac "github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/data-access"
 	"github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/model"
-	"github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/utils/chunkreader"
 	gen "github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/utils/kmers-generator"
 	"github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/utils/workerspool"
 )
@@ -104,7 +101,7 @@ func (controller *Controller) handleCommand(command cmd.Command) error {
 		return controller.InitEmptyDBG(cmdInitEmptyGraph.K)
 	case cmd.AddGenome:
 		cmdAddGenome, _ := command.(*cmd.AddGenomeCommand)
-		return controller.AddGenome(cmdAddGenome.Path)
+		return controller.AddGenome(cmdAddGenome.Data)
 	default:
 		return fmt.Errorf("unsupported controller command")
 	}
@@ -152,44 +149,37 @@ func (controller *Controller) InitEmptyDBG(k int64) error {
 	return nil
 }
 
-// еще возникла проблема, в коммьюнити едишн нео4ж можно только одну базу на сервер
-// а чтобы тестировать, нужно будет две базы - игрушечная и нормальная
-// мб можно завести два сервиса с докеровскими нео4ж и смапить их на разные порты
-// мб можно и приложеньку сбилдить как докеровский сервис и деплоить ее системд сервисом
-// проблема только в том, что собираться будет дольше
-func (controller *Controller) AddGenome(path string) error {
-	log.Printf("Adding genome, path=%s\n", path)
+func (controller *Controller) AddGenome(Data []byte) error {
+	log.Printf("Adding genome, Data=%s,\n%d bytes\n", string(Data), len(Data))
 
-	// открываем файл
-	fasta, err := os.Open(path)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	defer fasta.Close()
-
-	// создаем ридера
-	reader := chunkreader.GetChunkReader(ChunkSize, int(controller.Model.K), fasta)
-
-	// в основном потоке ридер читает чанки памяти и
-	// отдает их воркерам(!)
-	chunk, err := reader.ReadChunk()
-	for err == nil {
-		//controller.repo.MergePrecedingKMers()
-		// TODO: добавить кафку - только тут траблы с тем как партицировать графовую бд
-		controller.pool.AddTask(
-			NewAddGenomeTask(
-				chunk,
-				controller.repo,
-				reader,
-			),
-		)
-		chunk, err = reader.ReadChunk()
-	}
-	if err != io.EOF {
-		log.Println(err)
-		return err
-	}
+	// // открываем файл
+	// fasta, err := os.Open(path)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	return err
+	// }
+	// defer fasta.Close()
+	// // создаем ридера
+	// reader := chunkreader.GetChunkReader(ChunkSize, int(controller.Model.K), fasta)
+	// // в основном потоке ридер читает чанки памяти и
+	// // отдает их воркерам(!)
+	// chunk, err := reader.ReadChunk()
+	// for err == nil {
+	// 	//controller.repo.MergePrecedingKMers()
+	// 	// TODO: добавить кафку - только тут траблы с тем как партицировать графовую бд
+	// 	controller.pool.AddTask(
+	// 		NewAddGenomeTask(
+	// 			chunk,
+	// 			controller.repo,
+	// 			reader,
+	// 		),
+	// 	)
+	// 	chunk, err = reader.ReadChunk()
+	// }
+	// if err != io.EOF {
+	// 	log.Println(err)
+	// 	return err
+	// }
 
 	return nil
 }

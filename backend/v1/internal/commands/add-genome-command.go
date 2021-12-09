@@ -1,19 +1,14 @@
 package commands
 
-import (
-	"encoding/json"
-	"log"
-)
-
 type AddGenomeCommand struct {
 	Header CommandHeader
-	Path   string
+	Data   []byte
 }
 
-func NewAddGenomeCommand(path string) Command {
+func NewAddGenomeCommand(data []byte) Command {
 	return &AddGenomeCommand{
-		Path:   path,
-		Header: *NewCommandHeader(AddGenome, int64(len(path))),
+		Data:   data,
+		Header: *NewCommandHeader(AddGenome, int64(len(data))),
 	}
 }
 
@@ -40,15 +35,10 @@ func (cmd *AddGenomeCommand) GetHeader() CommandHeader {
 // }
 
 func (cmd *AddGenomeCommand) MarshalBody() ([]byte, int64) {
-	bytes := []byte(cmd.Path)
-	return bytes, int64(len(bytes))
+	return cmd.Data, int64(len(cmd.Data))
 }
 
 func (cmd *AddGenomeCommand) UnmarshalBody(b []byte) error {
-	err := json.Unmarshal(b, &cmd.Path)
-	if err != nil {
-		log.Println("failed to unmarshall body:", err)
-		return err
-	}
+	cmd.Data = b
 	return nil
 }

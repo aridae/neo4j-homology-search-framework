@@ -22,6 +22,7 @@ var (
 
 	add  = app.Command("add", "Add genome to database.")
 	path = add.Flag("path", "Path to file with genome.").Required().String()
+	kAdd = add.Flag("k", "Kmer size.").Required().Int64()
 )
 
 func main() {
@@ -34,6 +35,6 @@ func main() {
 
 	case add.FullCommand():
 		client = proto.NewClient(*connstr)
-		client.SendAddGenomeCommand(*path)
+		client.SendAddGenomeCommand(*path, *kAdd)
 	}
 }

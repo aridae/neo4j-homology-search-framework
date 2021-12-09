@@ -1,20 +1,45 @@
 package commands
 
 import (
-	"encoding/json"
-	"log"
+	"fmt"
+	"os/exec"
+	"strconv"
+)
+
+var (
+	ParsingArgs = []string{
+		"./preprocessing/v1/parse-fasta.sh",
+		"-dout", "/fasta/jsons",
+		"-mc", "1000000",
+	}
 )
 
 type AddGenomeCommand struct {
 	Header CommandHeader
-	Path   string
+	Data   []byte
 }
 
-func NewAddGenomeCommand(path string) Command {
-	return &AddGenomeCommand{
-		Path:   path,
-		Header: *NewCommandHeader(AddGenome, int64(len(path))),
+func NewAddGenomeCommand(path string, k int64) (Command, error) {
+	ParsingArgs := append(ParsingArgs, "-fin", path, "-k", strconv.FormatInt(k, 10))
+
+	fmt.Printf("%+v\n", ParsingArgs)
+
+	// запускаем скрипт, дложидаемся завершения
+	bash := exec.Command("/bin/bash", ParsingArgs...)
+	data, err := bash.CombinedOutput()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
 	}
+
+	// читаем жсон из вывода
+	println(string(data), len(data))
+
+	// возвращаем в обработчик, чтобы передали бэку
+	return &AddGenomeCommand{
+		Header: *NewCommandHeader(AddGenome, int64(len(data))),
+		Data:   data,
+	}, nil
 }
 
 func (cmd *AddGenomeCommand) GetCmd() CommandOption {
@@ -24,31 +49,10 @@ func (cmd *AddGenomeCommand) GetCmd() CommandOption {
 func (cmd *AddGenomeCommand) GetHeader() CommandHeader {
 	return cmd.Header
 }
-
-// func (cmd *AddGenomeCommand) MarshalHeader() ([]byte, int64) {
-// 	bytes := []byte(cmd.Path)
-// 	return bytes, int64(len(bytes))
-// }
-
-// func (cmd *AddGenomeCommand) UnmarshalHeader(b []byte) error {
-// 	err := json.Unmarshal(b, &cmd.Path)
-// 	if err != nil {
-// 		log.Println("failed to unmarshall body:", err)
-// 		return err
-// 	}
-// 	return nil
-// }
-
 func (cmd *AddGenomeCommand) MarshalBody() ([]byte, int64) {
-	bytes := []byte(cmd.Path)
-	return bytes, int64(len(bytes))
+	return cmd.Data, int64(len(cmd.Data))
 }
 
 func (cmd *AddGenomeCommand) UnmarshalBody(b []byte) error {
-	err := json.Unmarshal(b, &cmd.Path)
-	if err != nil {
-		log.Println("failed to unmarshall body:", err)
-		return err
-	}
 	return nil
 }
