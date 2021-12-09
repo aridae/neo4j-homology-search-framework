@@ -50,7 +50,6 @@ docker exec --interactive --tty neo4j_test neo4j-admin <command>
 docker exec --interactive --tty neo4j_test cypher-shell -u neo4j -p neo4j
 ```
 
-
 Аналогично kmc_test: 
 
 ```
@@ -98,40 +97,53 @@ bash ./load-fasta.sh
 ```
 
 Создаем базу `/fasta/fasta_parsed/pseudo9999_parsed` для подсчета и хранения количества кмер в фасте `/fasta/pseudo9999.fasta.gz`:
-
 ```
-docker exec --interactive --tty kmc_test ./kmc -v -k8 -fa /fasta/pseudo9999.fasta.gz /fasta/fasta_parsed/pseudo9999_parsed .
-```
-
-Вывод примерно такой:
-```
-...
-******* configuration for small k mode: *******
-No. of input files           : 1
-Output file name             : /fasta/fasta_parsed/pseudo9999_parsed
-Input format                 : FASTA
-
-k-mer length                 : 8
-Max. k-mer length            : 256
-Min. count threshold         : 2
-Max. count threshold         : 1000000000
-Max. counter value           : 255
-Both strands                 : true
-Input buffer size            : 33554432
-...
-Stats:
-   No. of k-mers below min. threshold :            0
-   No. of k-mers above max. threshold :            0
-   No. of unique k-mers               :        32896
-   No. of unique counted k-mers       :        32896
-   Total no. of k-mers                :     58161950
-   Total no. of reads                 :          235
-   Total no. of super-k-mers          :            0
+docker exec --interactive --tty kmc_test ./kmc -v -k8 -cs1000000 -fa /fasta/pseudo9999.fasta.gz /fasta/fasta_parsed/pseudo9999_parsed .
 ```
 
-После этого в `/fasta/fasta_parsed` появятся два файла: 
+Сохраняем базу в файл:
+```
+docker exec --interactive --tty kmc_test ./kmc_dump /fasta/fasta_parsed/pseudo9999_parsed /fasta/fasta_parsed/dumped_pseudo9999
+```
 
+Теперь у нас есть:
+```
+root@ubuntu-s-4vcpu-8gb-fra1-01:~/Code/neo4j-homology-search-framework# cat /fasta/fasta_parsed/dumped_pseudo9999 | tail
+TTTAAAAA        12281
+TTTACAAA        7610
+TTTAGAAA        7272
+TTTATAAA        5073
+TTTCAAAA        11401
+TTTCCAAA        6912
+TTTCGAAA        1895
+TTTGAAAA        11034
+TTTGCAAA        3112
+TTTTAAAA        8210
+```
 
+Проблема только в том, что кмс считает кмеры для всей фасты целиком, а нам нужно - по последовательностям, иначе мы будем находить пути, содержащие последовательности, которых нет в исходном геноме. 
+Поэтому я делю фасту на маленькие фасточки - по последовательности в каждой, прогоняю на каждой кмс и сохраняю в жсон в формате:
+```
+{
+  genome: "<инфа о геноме из первой строки>",
+  sequences: [
+    {
+      name: "<идентификатор последовательности 1>",
+      data: "AAA:5,AAG:6,AAC:7..."
+    },
+    {
+      name: "<идентификатор последовательности 1>",
+      data: "AAA:8,AAG:7,AAC:6..."
+    },
+    ...
+  ]
+}
+```
+Это все делает скрипт `./preprocession/v1/kmc/parse-fasta.sh` - все языки работают очень долго, поэтому все на awk.
+Проблема - kmc кажется игнорирует фасовские маски, но есть исходный код - можно будет подправить это под себя. Только как...
+После того, как кмеры посчитаны, надо передать этот жсон бэку, чтобы он запушил все в бд.
+
+### Шпоры по командам компознику:
 
 Пересобрать вообще все:
 
