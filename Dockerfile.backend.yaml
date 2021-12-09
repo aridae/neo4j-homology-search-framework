@@ -1,0 +1,14 @@
+FROM golang:1.17 as build
+WORKDIR /mewo4j
+COPY go.mod .
+RUN go get github.com/joho/godotenv
+RUN go get github.com/neo4j/neo4j-go-driver/v4/neo4j 
+RUN go mod download
+COPY ./backend/v1/ /mewo4j/backend/v1/
+RUN go build -o mewo4j_exe backend/v1/cmd/cli/main.go
+
+FROM ubuntu:latest as backend-server
+RUN apt update && apt install ca-certificates -y && rm -rf /var/cache/apt/*
+VOLUME ["/fasta"]
+COPY --from=build /mewo4j/mewo4j_exe /
+CMD ["./mewo4j_exe"]

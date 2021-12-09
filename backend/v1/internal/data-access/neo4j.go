@@ -15,7 +15,7 @@ func NewNeo4jRepository(neo4jClient *dbdriver.Neo4jClient) Repository {
 	}
 }
 
-func (rep *Neo4jRepository) MergekPlus1Mer(kPlus1Mer []byte) error {
+func (rep *Neo4jRepository) MergePrecedingKMers(kPlus1Mer []byte) error {
 	session := rep.neo4jClient.CreateSession()
 	defer session.Close()
 

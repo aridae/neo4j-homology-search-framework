@@ -13,6 +13,7 @@ func NewKMersGenerator(k uint64, queueSize uint64) *KMersGenerator {
 }
 
 // k <= 31!!!
+// ВАЖНОЕ НАПОМИНАНИЕ СЕБЕ: тут нужен именно юинт, а то битовые операции поломаются
 func (gen *KMersGenerator) Generate() error {
 	defer close(gen.OutKMers)
 

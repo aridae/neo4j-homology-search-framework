@@ -13,11 +13,8 @@ func NewWorker(tasksQueue chan Task, ID int) *Worker {
 }
 
 func (w *Worker) RunBackground() {
-	// log.Printf("Starting worker %d...\n", w.ID)
-
 	for task := range w.tasksQueue {
-		process(w.ID, task)
+		task.Process()
+		task.Cleanup()
 	}
-
-	// log.Printf("Worker %d stopped\n", w.ID)
 }

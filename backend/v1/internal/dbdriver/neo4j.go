@@ -59,7 +59,7 @@ func initNeo4jClient(options *Options) (*neo4j.Driver, error) {
 		neo4j.BasicAuth(
 			options.User,
 			options.Password,
-			"",
+			options.DB,
 		),
 	)
 	return &driver, err
