@@ -1,6 +1,14 @@
 version: '3'
 
 services:
+  kmc_test:
+    build:
+      context: .
+      dockerfile: Dockerfile.kmc.yaml
+    container_name: kmc_test 
+    restart: unless-stopped 
+    volumes:
+        - /fasta:/fasta
   neo4j_test:
     image: neo4j
     container_name: neo4j_test
@@ -20,6 +28,9 @@ services:
       - NEO4J_dbms_security_procedures_whitelist=gds.*, apoc.*
       - NEO4J_dbms_security_procedures_unrestricted=gds.*, apoc.*
   mewo4j_test:
+    depends_on:
+      - neo4j_test
+      - kmc_test 
     build:
       context: .
       dockerfile: Dockerfile.backend.yaml
