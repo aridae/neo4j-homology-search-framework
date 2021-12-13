@@ -2,8 +2,12 @@ package commands
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"os"
 	"os/exec"
 	"strconv"
+	"sync"
 )
 
 var (
@@ -26,19 +30,40 @@ func NewAddGenomeCommand(path string, k int64) (Command, error) {
 
 	// запускаем скрипт, дложидаемся завершения
 	bash := exec.Command("/bin/bash", ParsingArgs...)
-	data, err := bash.CombinedOutput()
-	if err != nil {
-		fmt.Println(err)
+
+	stdout, _ := bash.StdoutPipe()
+	stderr, _ := bash.StderrPipe()
+
+	if err := bash.Start(); err != nil {
+		log.Printf("Error executing command: %s......\n", err.Error())
 		return nil, err
 	}
 
-	// читаем жсон из вывода
-	println(string(data), len(data))
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		io.Copy(os.Stdout, stdout)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		io.Copy(os.Stderr, stderr)
+	}()
+
+	wg.Wait()
+
+	if err := bash.Wait(); err != nil {
+		log.Printf("Error waiting for command execution: %s......\n", err.Error())
+		return nil, err
+	}
 
 	// возвращаем в обработчик, чтобы передали бэку
 	return &AddGenomeCommand{
-		Header: *NewCommandHeader(AddGenome, int64(len(data))),
-		Data:   data,
+		Header: *NewCommandHeader(AddGenome, int64(0)),
+		Data:   []byte{},
 	}, nil
 }
 
