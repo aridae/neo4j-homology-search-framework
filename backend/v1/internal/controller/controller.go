@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"sync"
@@ -9,6 +10,7 @@ import (
 	cmd "github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/commands"
 	dac "github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/data-access"
 	"github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/model"
+	mdl "github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/model"
 	gen "github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/utils/kmers-generator"
 	"github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/utils/workerspool"
 )
@@ -108,6 +110,9 @@ func (controller *Controller) handleCommand(command cmd.Command) error {
 }
 
 func (controller *Controller) InitEmptyDBG(k int64) error {
+	if k < 1 {
+		return fmt.Errorf("invalid k = %d", k)
+	}
 	log.Println("Constructing Empty De bruijn Graph")
 	log.Printf("Generating kmers [k=%d]...\n", k)
 
@@ -150,7 +155,17 @@ func (controller *Controller) InitEmptyDBG(k int64) error {
 }
 
 func (controller *Controller) AddGenome(Data []byte) error {
-	log.Printf("Adding genome, Data=%s,\n%d bytes\n", string(Data), len(Data))
+	log.Printf("Adding genome %d bytes\n", len(Data))
+
+	var genome mdl.Genome
+	err := json.Unmarshal(Data, &genome)
+	if err != nil {
+		log.Println("failed to unmarshall genome data to genome struct")
+	}
+	// add genome to database
+
+	// add sequence to database
+	// add kmers to database in parallel
 
 	// // открываем файл
 	// fasta, err := os.Open(path)

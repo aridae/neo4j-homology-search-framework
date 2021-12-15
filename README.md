@@ -79,14 +79,14 @@ Commands:
   init --k=K
     Init empty de bruijn graph database.
 
-  add --path=PATH
+  add --path=PATH --k=K
     Add genome to database.
 ```
 
 Создаем бд с пустым графом де Брюйна: 
 
 ```
-go run ./client/v1/cmd/cli/main.go --mewoserver=localhost:35036 init --k=3
+go run ./client/v1/cmd/cli/main.go --mewoserver=localhost:35035 init --k=3
 ```
 
 В чем проблема: мы передаем в патхе путь к фасте на хосте, контейнеру туда лезть нельзя. Единственный способ контейнеру добраться до локального файла на хосте -- положить этот файл в вольюм, куда примонтирована локальная папка - поэтому валидный патх обязательно должен быть `/fasta/<filename>`. Этот же вольюм примонтирован для кмс.

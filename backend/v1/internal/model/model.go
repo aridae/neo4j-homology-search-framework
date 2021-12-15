@@ -13,6 +13,16 @@ type Model struct {
 	Status       ModelStatus
 }
 
+type Sequence struct {
+	Name string `json:"name"`
+	Data []byte `json:"data"`
+}
+
+type Genome struct {
+	Genome    string     `json:"genome"`
+	Sequences []Sequence `json:"sequences"`
+}
+
 func EmptyModel() *Model {
 	return &Model{}
 }

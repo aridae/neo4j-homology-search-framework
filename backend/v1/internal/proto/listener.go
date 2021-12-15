@@ -102,6 +102,8 @@ func (l *Listener) readCommand(conn net.Conn) (cmd.Command, error) {
 	}
 
 	// unserialize it
+	log.Printf("read from socket - %s (%d)", string(headerBytes), len(headerBytes))
+
 	var Header cmd.CommandHeader
 	err = json.Unmarshal(headerBytes, &Header)
 	if err != nil {

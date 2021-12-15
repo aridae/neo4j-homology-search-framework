@@ -1,7 +1,6 @@
 package proto
 
 import (
-	"encoding/json"
 	"log"
 	"net"
 
@@ -45,9 +44,9 @@ func (client *Client) sendCommand(cmd cmd.Command) error {
 
 	// отправляем хедер
 	log.Printf("trying to send header %+v\n", cmd.GetHeader())
-	CommandHeader, err := json.Marshal(cmd.GetHeader())
+	CommandHeader, err := cmd.GetHeader().Marshall()
 	if err != nil {
-		log.Println("failed to marshall command: ", err)
+		log.Println("failed to marshall header: ", err)
 		return err
 	}
 	_, err = conn.Write(CommandHeader)
