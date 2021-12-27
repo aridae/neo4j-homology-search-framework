@@ -155,16 +155,27 @@ func (controller *Controller) InitEmptyDBG(k int64) error {
 }
 
 func (controller *Controller) AddGenome(Data []byte) error {
-	log.Printf("Adding genome %d bytes\n", len(Data))
+	log.Printf("Adding genome - %s..., %d bytes\n", string(Data[:200]), len(Data))
 
 	var genome mdl.Genome
 	err := json.Unmarshal(Data, &genome)
 	if err != nil {
-		log.Println("failed to unmarshall genome data to genome struct")
+		log.Println("failed to unmarshall genome data to genome struct:", err)
+		return err
 	}
-	// add genome to database
 
-	// add sequence to database
+	// add genome meta to database
+	err = controller.repo.AddGenomeMeta(&genome)
+	if err != nil {
+		log.Println("failed to add genome meta:", err)
+		return err
+	}
+
+	// // add sequence to database
+	// for i, seq := genome.Sequences {
+
+	// }
+
 	// add kmers to database in parallel
 
 	// // открываем файл

@@ -6,6 +6,7 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/neo4j/neo4j-go-driver/v4 v4.4.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (

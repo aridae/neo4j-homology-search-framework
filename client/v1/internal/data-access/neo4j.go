@@ -1,8 +1,8 @@
 package dataaccess
 
 import (
-	"github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/dbdriver"
-	mdl "github.com/aridae/neo4j-homology-search-framework/backend/v1/internal/model"
+	"github.com/aridae/neo4j-homology-search-framework/client/v1/internal/dbdriver"
+	mdl "github.com/aridae/neo4j-homology-search-framework/client/v1/internal/model"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 )
 
@@ -62,6 +62,25 @@ func (rep *Neo4jRepository) AddGenomeMeta(genome *mdl.Genome) error {
 	return err
 }
 
-func (rep *Neo4jRepository) AddSequenceKMer(sequence *mdl.SequenceMeta, KMer string) {
+func (rep *Neo4jRepository) AddSequenceKMer(sequence *mdl.Sequence, KMer string, cnt int64) error {
+	session := rep.neo4jClient.CreateSession()
+	defer session.Close()
 
+	_, err := session.WriteTransaction(
+		func(tx neo4j.Transaction) (interface{}, error) {
+			_, err := tx.Run(
+				"MATCH (sequence:Sequence { name: $sequenceName }) MATCH (n:KMer { value: $kmer }) MERGE (n)-[r:Belongs{count: $count}]->(sequence)",
+				map[string]interface{}{
+					"sequenceName": sequence.Name,
+					"kmer":         KMer,
+					"count":        cnt,
+				},
+			)
+			if err != nil {
+				return nil, err
+			}
+			return nil, nil
+		},
+	)
+	return err
 }

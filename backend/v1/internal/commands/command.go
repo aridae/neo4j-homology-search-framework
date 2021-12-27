@@ -58,11 +58,12 @@ func (h CommandHeader) Marshall() ([]byte, error) {
 	return bytes, nil
 }
 
-func Unmarshall(bytes []byte) (*CommandHeader, error) {
+func UnmarshallHeader(bytes []byte) (*CommandHeader, error) {
+
 	m := CommandHeaderDTO{}
 	err := json.Unmarshal(bytes, &m)
 	if err != nil {
-		log.Printf("failed to unmarshall header %s\n", err)
+		log.Printf("*** failed to unmarshall header %s\n", err)
 		return nil, err
 	}
 

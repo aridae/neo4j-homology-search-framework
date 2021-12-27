@@ -2,7 +2,6 @@ package listener
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -103,9 +102,7 @@ func (l *Listener) readCommand(conn net.Conn) (cmd.Command, error) {
 
 	// unserialize it
 	log.Printf("read from socket - %s (%d)", string(headerBytes), len(headerBytes))
-
-	var Header cmd.CommandHeader
-	err = json.Unmarshal(headerBytes, &Header)
+	Header, err := cmd.UnmarshallHeader(headerBytes)
 	if err != nil {
 		log.Println("Failed to unmarshal header:", err)
 		return nil, err
@@ -117,11 +114,11 @@ func (l *Listener) readCommand(conn net.Conn) (cmd.Command, error) {
 	switch Header.Cmd {
 	case cmd.InitEmptyGraph:
 		command = &cmd.InitEmptyGraphCommand{
-			Header: Header,
+			Header: *Header,
 		}
 	case cmd.AddGenome:
 		command = &cmd.AddGenomeCommand{
-			Header: Header,
+			Header: *Header,
 		}
 	default:
 		return nil, fmt.Errorf("failed to resolve command: unsopported command")

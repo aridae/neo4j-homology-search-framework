@@ -59,23 +59,23 @@ touch ${OUTPUT_FILE} &> /dev/null
 # echo "output directory ${OUTPUT_DIR}"
 # echo "output directory ${PWD}"
 # echo "output directory ${OUTPUT_FILE}"
-printf $'{\n' >> ${OUTPUT_FILE}
-printf $'\tgenome: \"' >> ${OUTPUT_FILE} && printf ${GENOME} >> ${OUTPUT_FILE} && printf '\",\n' >> ${OUTPUT_FILE}
-printf $'\tsequences: [\n' >> ${OUTPUT_FILE}
+#printf '%s' $'{' >> ${OUTPUT_FILE}
+printf '%s' $'genome: "' >> ${OUTPUT_FILE} && printf '%s' ${GENOME} >> ${OUTPUT_FILE}&& printf '"' >> ${OUTPUT_FILE}
+printf '%s' $'\nsequences: ' >> ${OUTPUT_FILE}
 for seqfile in ${OUTPUT_DIR}/${NAME}/*.fasta; do
     chmod 755 ${seqfile} 
     name=$(cat ${seqfile} | awk 'NR==1{print substr($1,2);}')
-    printf $'\t\t{\n\t\t\tname: \"' >> ${OUTPUT_FILE} && printf ${name} >> ${OUTPUT_FILE} && printf $'\",\n' >> ${OUTPUT_FILE} &&
-    printf $'\t\t\tdata: \"' >> ${OUTPUT_FILE} &&
+    printf '%s' $'\n  - name: "' >> ${OUTPUT_FILE} && printf '%s' ${name} >> ${OUTPUT_FILE} && printf '%s' $'"' >> ${OUTPUT_FILE} &&
+    printf '%s' $'\n    data: "' >> ${OUTPUT_FILE} &&
     sudo docker exec kmc_test ./kmc -v -k${K} -cs${MAX_CNT} -fa ${seqfile} ${seqfile}_db . &> /dev/null &&
     sudo docker exec kmc_test ./kmc_dump ${seqfile}_db ${seqfile}_db_dumped &> /dev/null &&
-    cat ${seqfile}_db_dumped | awk '{gsub(/\t/,":")}1' | awk '{printf "%s,",$0} END {print ""}' >> ${OUTPUT_FILE} &&
-    printf $'\"\n\t\t},\n' >> ${OUTPUT_FILE} 
+    cat ${seqfile}_db_dumped | awk '{gsub(/\t/,":")}1' | awk '{printf "%s,",$0} END {print ""}' | tr -d '\n' | tr -d ' ' | sed 's/\(.*\),/\1 /' | awk '{print $0"\""}' >> ${OUTPUT_FILE} 
 done
-printf $'\t]\n' >> ${OUTPUT_FILE}
-printf $'}' >> ${OUTPUT_FILE}
+# printf '%s' $']' >> ${OUTPUT_FILE}
+# printf '%s' $'}' >> ${OUTPUT_FILE}
 
 sudo rm -r ${OUTPUT_DIR}/${NAME} &> /dev/null
 
-cat ${OUTPUT_FILE}
+cat ${OUTPUT_FILE} 
+# | tr -d '\n' | sed 's/\(.*\),/\1 /'
 sudo rm ${OUTPUT_FILE} &> /dev/null

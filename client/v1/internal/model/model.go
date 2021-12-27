@@ -13,18 +13,14 @@ type Model struct {
 	Status       ModelStatus
 }
 
-type SequenceMeta struct {
-	Name string `json:"name"`
-}
-
 type Sequence struct {
-	SequenceMeta
-	Data []byte `json:"data"`
+	Name string `yaml:"name"`
+	Data string `yaml:"data"`
 }
 
 type Genome struct {
-	Name      string     `json:"genome"`
-	Sequences []Sequence `json:"sequences"`
+	Name      string     `yaml:"genome"`
+	Sequences []Sequence `yaml:"sequences"`
 }
 
 func EmptyModel() *Model {

@@ -26,12 +26,12 @@ func (client *Client) SendAddGenomeCommand(path string, k int64) error {
 	// дергаем скрипт с кмс, читаем получившийся жсон
 	// удаляем этот жсон(?) оставляем в качестве кэша(?)
 	// потом удалим...
-	println("pomogite")
-	addGenomeCommand, err := cmd.NewAddGenomeCommand(path, k)
+	_, err := cmd.NewAddGenomeCommand(path, k)
 	if err != nil {
 		return err
 	}
-	return client.sendCommand(addGenomeCommand)
+
+	return nil
 }
 
 func (client *Client) sendCommand(cmd cmd.Command) error {
@@ -61,7 +61,7 @@ func (client *Client) sendCommand(cmd cmd.Command) error {
 		log.Println("failed to marshal body: ", err)
 		return err
 	}
-	log.Printf("trying to send body %d\n", bodyLen)
+	log.Printf("trying to send body %s - %d\n", commandBody[:200], bodyLen)
 	_, err = conn.Write(commandBody)
 	if err != nil {
 		log.Println("failed to send body: ", err)

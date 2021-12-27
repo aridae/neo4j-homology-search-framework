@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	ListenerToControllerBuf = 3
+	ListenerToControllerBuf = 207375200
 )
 
 func init() {

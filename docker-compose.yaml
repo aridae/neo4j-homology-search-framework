@@ -46,3 +46,22 @@ services:
       - NEO4J_USR=neo4j
       - NEO4J_PASS=H7rxhdt6!-jwt
     network_mode: "host"
+
+  mewo4j_test_client:
+    depends_on:
+      - mewo4j_test
+      - neo4j_test
+      - kmc_test 
+    build:
+      context: .
+      dockerfile: Dockerfile.client.yaml
+    volumes:
+      - /fasta:/fasta
+    container_name: mewo4j_test_client
+    restart: unless-stopped 
+    environment:
+      - NEO4J_URI=bolt://159.89.9.159:5001/
+      - NEO4J_DB=neo4j
+      - NEO4J_USR=neo4j
+      - NEO4J_PASS=H7rxhdt6!-jwt
+    network_mode: "host"

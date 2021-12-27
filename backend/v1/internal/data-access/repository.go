@@ -7,5 +7,5 @@ import (
 type Repository interface {
 	MergePrecedingKMers(kPlus1Mer []byte) error
 	AddGenomeMeta(genome *mdl.Genome) error
-	AddSequenceKMer(sequence *mdl.Sequence, KMer string) // переписать на норм
+	AddSequenceKMer(sequence *mdl.SequenceMeta, KMer string)
 }
