@@ -49,7 +49,7 @@
 \captionsetup[table]{singlelinecheck=false, labelsep=endash}
 
 \usepackage{graphicx}
-\usepackage{slashbox} % Диагональное разделение первой ячейки в таблицах
+%\usepackage{slashbox} % Диагональное разделение первой ячейки в таблицах
 
 % Цвета для гиперссылок и листингов
 \usepackage{color}
@@ -69,7 +69,7 @@
 
 \usepackage{color} % Цвета для гиперссылок и листингов
 %\definecolor{comment}{rgb}{0,0.5,0}
-%\definecolor{plain}{rgb}{0.2,0.2,0.2}
+\definecolor{plain}{rgb}{0.2,0.2,0.2}
 %\definecolor{string}{rgb}{0.91,0.45,0.32}
 %\hypersetup{citecolor=blue}
 \hypersetup{citecolor=black}
@@ -78,7 +78,7 @@
 \lstset{
 	basicstyle=\footnotesize\ttfamily,
 	language=[Sharp]C, % Или другой ваш язык -- см. документацию пакета
-	commentstyle=\color{comment},
+	%commentstyle=\color{comment},
 	numbers=left,
 	numberstyle=\tiny\color{plain},
 	numbersep=5pt,
@@ -86,8 +86,9 @@
 	extendedchars=\true,
 	breaklines=true,
 	keywordstyle=\color{blue},
-	frame=b,
-	stringstyle=\ttfamily\color{string}\ttfamily,
+	%frame=b,
+	frame=single,
+	%stringstyle=\ttfamily\color{string}\ttfamily,
 	showspaces=false,
 	showtabs=false,
 	xleftmargin=17pt,
@@ -111,5 +112,24 @@
 \makeatother
 
 \usepackage{color}
+\usepackage{url}
+\urlstyle{same}
+\hypersetup{linkcolor=black}
+
 \usepackage{amsmath}
-\usepackage{slashbox}
+%\usepackage{slashbox}
+
+\renewcommand{\refname}{}
+%\usepackage[parentracker=true,
+%backend=biber,
+%hyperref=false,
+%bibencoding=utf8,
+%style=numeric-comp,
+%language=auto,
+%autolang=other,
+%citestyle=gost-numeric,
+%defernumbers=true,
+%bibstyle=gost-numeric,
+%sorting=ntvy,
+%]{biblatex}
+%\addbibresource{bibfile.bib}
