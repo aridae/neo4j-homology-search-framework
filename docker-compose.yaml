@@ -41,7 +41,7 @@ services:
     ports:
       - "35035:35035"
     environment:
-      - NEO4J_URI=bolt://159.89.9.159:5001/
+      - NEO4J_URI=bolt://85.143.172.72:5001/
       - NEO4J_DB=neo4j
       - NEO4J_USR=neo4j
       - NEO4J_PASS=H7rxhdt6!-jwt
@@ -60,7 +60,7 @@ services:
     container_name: mewo4j_test_client
     restart: unless-stopped 
     environment:
-      - NEO4J_URI=bolt://159.89.9.159:5001/
+      - NEO4J_URI=bolt://85.143.172.72:5001/
       - NEO4J_DB=neo4j
       - NEO4J_USR=neo4j
       - NEO4J_PASS=H7rxhdt6!-jwt
